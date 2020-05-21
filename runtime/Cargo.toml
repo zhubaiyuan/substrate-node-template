@@ -1,3 +1,8 @@
+[dependencies.hello-substrate]
+default-features = false
+git = 'https://github.com/substrate-developer-hub/recipes'
+tag = 'v2.0.0-alpha.8'
+
 [dependencies.aura]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
@@ -176,6 +181,7 @@ targets = ['x86_64-unknown-linux-gnu']
 [features]
 default = ['std']
 std = [
+    'hello-substrate/std',
     'aura/std',
     'balances/std',
     'codec/std',

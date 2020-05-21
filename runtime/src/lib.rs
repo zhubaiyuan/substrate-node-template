@@ -250,6 +250,9 @@ impl template::Trait for Runtime {
 	type Event = Event;
 }
 
+/// The hello-substrate pallet from the Substrate Recipes
+impl hello_substrate::Trait for Runtime {}
+
 construct_runtime!(
 	pub enum Runtime where
 		Block = Block,
@@ -266,6 +269,7 @@ construct_runtime!(
 		Sudo: sudo::{Module, Call, Config<T>, Storage, Event<T>},
 		// Used for the module template in `./template.rs`
 		TemplateModule: template::{Module, Call, Storage, Event<T>},
+		HelloSubstrate: hello_substrate::{Module, Call},
 	}
 );
 
