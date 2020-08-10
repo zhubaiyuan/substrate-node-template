@@ -1,14 +1,14 @@
 # Substrate Developer Set-Up Guide
 
 The purpose of this document is to provide developers with the information they need to set-up a Substrate development
-environment. For each operating system described below, a standard Docker container has been used to verify that the
-provided steps are sufficient to build and run the template node in this repository.
+environment. For each operating system we support a standard Docker container exist to verify that the
+provided steps are sufficient to build and run the node template in this repository.
 
 ## Ubuntu
 
 This set-up was verified using [the standard Ubuntu Docker container](https://hub.docker.com/_/ubuntu). This container
-defaults to a root user, but most developers will probably need to preface the following commands with `sudo` in order
-to execute them with the necessary privileges.
+defaults to a root user, so most developers should preface the following commands with `sudo` in order
+to execute them with the correctly defined privileges.
 
 ```shell
 apt update
@@ -26,8 +26,8 @@ rustup update
 ## Arch Linux
 
 This set-up was verified using [the standard Arch Linux Docker container](https://hub.docker.com/_/archlinux). This
-container defaults to a root user, but most developers will probably need to preface the following commands with `sudo`
-in order to execute them with the necessary privileges.
+container defaults to a root user, so most developers should preface the following commands with `sudo`
+in order to execute them with the correctly defined privileges.
 
 ```shell
 pacman -Syu --needed --noconfirm cmake gcc openssl-1.0 pkgconf git clang
