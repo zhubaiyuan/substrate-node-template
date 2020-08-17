@@ -82,6 +82,11 @@ decl_module! {
 			Ok(())
 		}
 
+		#[weight = 10_000]
+		pub fn do_something_v2(origin, something: u32) -> dispatch::DispatchResult {
+			Ok(())
+		}
+
 		/// An example dispatchable that may throw a custom error.
 		#[weight = 10_000 + T::DbWeight::get().reads_writes(1,1)]
 		pub fn cause_error(origin) -> dispatch::DispatchResult {
@@ -102,7 +107,13 @@ decl_module! {
 		}
 
 		fn offchain_worker(block_number: T::BlockNumber) {
-			info!("off-chain worker enter v1");
+			Self::fn_v2();
 		}
+	}
+}
+
+impl<T: Trait> Module<T> {
+	fn fn_v2() {
+		info!("off-chain worker enter v2");
 	}
 }
