@@ -6,6 +6,7 @@
 
 use frame_support::{decl_module, decl_storage, decl_event, decl_error, dispatch, traits::Get};
 use frame_system::ensure_signed;
+use log::info;
 
 #[cfg(test)]
 mod mock;
@@ -98,6 +99,10 @@ decl_module! {
 					Ok(())
 				},
 			}
+		}
+
+		fn offchain_worker(block_number: T::BlockNumber) {
+			info!("off-chain worker enter v1");
 		}
 	}
 }
