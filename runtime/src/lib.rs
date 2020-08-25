@@ -269,13 +269,6 @@ parameter_types! {
     pub const MaxKittiesPerUser: u64 = 256;
 }
 
-/// Implement the Substratekitties unique asset
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Encode, Decode, Default, RuntimeDebug)]
-pub struct KittyInfo {
-    dob: Moment,
-    dna: Hash,
-}
-
 // Use the default commodity instance.
 impl pallet_commodities::Trait for Runtime {
     type CommodityAdmin = frame_system::EnsureRoot<AccountId>;
@@ -290,7 +283,6 @@ parameter_types! {
 }
 
 impl pallet_substratekitties::Trait for Runtime {
-    type Kitty = pallet_commodities::Commodity<Hash, KittyInfo>;
     type Kitties = pallet_commodities::Module<Runtime>;
     type Time = pallet_timestamp::Module<Runtime>;
     type Randomness = pallet_randomness_collective_flip::Module<Runtime>;

@@ -2,11 +2,14 @@
 
 use frame_support::{
 	decl_error, decl_event, decl_module, dispatch,
-	traits::{Currency, Get, LockIdentifier, LockableCurrency, /* Randomness, Time, */ WithdrawReason},
+	traits::{Currency, Get, LockIdentifier, LockableCurrency, Randomness, Time, WithdrawReason},
 };
 use frame_system::ensure_signed;
 
-// use pallet_commodities::nft::UniqueAssets;
+use pallet_commodities::nft::{UniqueAssets, NFT};
+use sp_core::RuntimeDebug;
+
+use codec::{Decode, Encode};
 
 #[cfg(test)]
 mod mock;
@@ -16,12 +19,24 @@ mod tests;
 
 const MODULE_ID: LockIdentifier = *b"subkitis";
 
+/// Implement the Substratekitties unique asset
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Encode, Decode, Default, RuntimeDebug)]
+pub struct KittyInfo<Hash, Moment> {
+    dob: Moment,
+    dna: Hash,
+}
+
+impl <Hash, Moment> NFT for KittyInfo<Hash, Moment>{
+	type Id = u64; //TODO Dan what do you actually want to do here?
+	type Info = Self; // This is a sign that there are too many traits.
+}
+
 type BalanceOf<T> =
 	<<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+type KittyInfoOf<T: Trait> = KittyInfo<T::Hash, <T::Time as Time>::Moment>;
 
 pub trait Trait: frame_system::Trait {
-	type Kitty: pallet_commodities::nft::NFT;
-	type Kitties: pallet_commodities::nft::UniqueAssets<Self::Kitty>;
+	type Kitties: UniqueAssets<KittyInfoOf<Self>>;
 	type Time: frame_support::traits::Time;
 	type Randomness: frame_support::traits::Randomness<Self::Hash>;
 	type Currency: frame_support::traits::LockableCurrency<Self::AccountId>;
@@ -55,9 +70,10 @@ decl_module! {
 			T::Currency::set_lock(MODULE_ID, &who, T::BasePrice::get(), WithdrawReason::Fee | WithdrawReason::Reserve);
 			// ERROR: expected pallet_commodities::nft::UniqueAssets::AccountId, found frame_system::Trait::AccountId
 			// ERROR: ambiguous associated type, use fully-qualified syntax (<<T as Trait>::Kitty as Trait>::AssetInfo)
-			// T::Kitties::mint(&who, T::Kitty::AssetInfo{dob: T::Time::now(), dna: T::Randomness::random(&MODULE_ID)});
+			let kitty_info = KittyInfo{dob: T::Time::now(), dna: T::Randomness::random(&MODULE_ID)};
+			T::Kitties::mint(&who, kitty_info);
 			Ok(())
-			
+
 			// TODO: DNA used to derive avatar https://www.peppercarrot.com/extras/html/2016_cat-generator/
 			// TODO: define an implicit mechanism for deriving a kitty's power from its DNA
 			// TODO: store variable kitty metadata (name, etc) in this pallet

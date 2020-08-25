@@ -23,6 +23,12 @@ git = 'https://github.com/paritytech/substrate.git'
 tag = 'v2.0.0-rc5'
 version = '2.0.0-rc5'
 
+[dependencies.sp-core]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc5'
+version = '2.0.0-rc5'
+
 [dependencies.frame-system]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
@@ -60,4 +66,5 @@ std = [
     'frame-system/std',
     'pallet-commodities/std',
     'sp-runtime/std',
+    'sp-core/std',
 ]
