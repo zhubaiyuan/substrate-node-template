@@ -4,7 +4,7 @@
 /// Learn more about FRAME and the core library of Substrate FRAME pallets:
 /// https://substrate.dev/docs/en/knowledgebase/runtime/frame
 
-use frame_support::{decl_module, decl_storage, decl_event, decl_error, dispatch::DispatchResult, ensure};
+use frame_support::{decl_module, decl_storage, decl_event, decl_error, dispatch::DispatchResult, ensure, traits::Get};
 use frame_system::ensure_signed;
 use sp_std::prelude::*;
 use sp_runtime::traits::StaticLookup;
@@ -19,6 +19,8 @@ mod tests;
 pub trait Trait: frame_system::Trait {
 	/// Because this pallet emits events, it depends on the runtime's definition of an event.
 	type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+
+	type MaxClaimLength: Get<u32>;
 }
 
 // The pallet's runtime storage items.
@@ -48,6 +50,7 @@ decl_error! {
 		ProofAlreadyExist,
 		ClaimNotExist,
 		NotClaimOwner,
+		ProofOutOfLimit,
 	}
 }
 
@@ -67,6 +70,8 @@ decl_module! {
 			let sender = ensure_signed(origin)?;
 
 			ensure!(!Proofs::<T>::contains_key(&claim), Error::<T>::ProofAlreadyExist);
+
+			ensure!(T::MaxClaimLength::get() >= claim.len() as u32, Error::<T>::ProofOutOfLimit);
 			
 			Proofs::<T>::insert(&claim, (sender.clone(), frame_system::Module::<T>::block_number()));
 
