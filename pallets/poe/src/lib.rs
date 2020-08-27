@@ -4,7 +4,7 @@
 /// Learn more about FRAME and the core library of Substrate FRAME pallets:
 /// https://substrate.dev/docs/en/knowledgebase/runtime/frame
 
-use frame_support::{decl_module, decl_storage, decl_event, decl_error, dispatch, traits::Get};
+use frame_support::{decl_module, decl_storage, decl_event, decl_error, dispatch::DispatchResult, ensure, traits::Get};
 use frame_system::ensure_signed;
 use sp_std::prelude::*;
 
@@ -35,12 +35,14 @@ decl_storage! {
 // https://substrate.dev/docs/en/knowledgebase/runtime/events
 decl_event!(
 	pub enum Event<T> where AccountId = <T as frame_system::Trait>::AccountId {
+		ClaimCreated(AccountId, Vec<u8>),
 	}
 );
 
 // Errors inform users that something went wrong.
 decl_error! {
 	pub enum Error for Module<T: Trait> {
+		ProofAlreadyExist,
 	}
 }
 
@@ -54,5 +56,18 @@ decl_module! {
 
 		// Events must be initialized if they are used by the pallet.
 		fn deposit_event() = default;
+
+		#[weight = 0]
+		pub fn create_claim(origin, claim: Vec<u8>) -> DispatchResult {
+			let sender = ensure_signed(origin)?;
+
+			ensure!(!Proofs::<T>::contains_key(&claim), Error::<T>::ProofAlreadyExist);
+			
+			Proofs::<T>::insert(&claim, (sender.clone(), frame_system::Module::<T>::block_number()));
+
+			Self::deposit_event(RawEvent::ClaimCreated(sender, claim));
+
+			Ok(())
+		}
 	}
 }
