@@ -7,6 +7,7 @@
 use frame_support::{decl_module, decl_storage, decl_event, decl_error, dispatch::DispatchResult, ensure};
 use frame_system::ensure_signed;
 use sp_std::prelude::*;
+use sp_runtime::traits::StaticLookup;
 
 #[cfg(test)]
 mod mock;
@@ -37,6 +38,7 @@ decl_event!(
 	pub enum Event<T> where AccountId = <T as frame_system::Trait>::AccountId {
 		ClaimCreated(AccountId, Vec<u8>),
 		ClaimRevoked(AccountId, Vec<u8>),
+		ClaimTransferred(AccountId, Vec<u8>),
 	}
 );
 
@@ -86,6 +88,25 @@ decl_module! {
 			Proofs::<T>::remove(&claim);
 
 			Self::deposit_event(RawEvent::ClaimRevoked(sender, claim));
+
+			Ok(())
+		}
+
+		#[weight = 0]
+		pub fn transfer_claim(origin, claim: Vec<u8>, dest: <T::Lookup as StaticLookup>::Source) -> DispatchResult {
+			let sender = ensure_signed(origin)?;
+
+			ensure!(Proofs::<T>::contains_key(&claim), Error::<T>::ClaimNotExist);
+
+			let (owner, _block_number) = Proofs::<T>::get(&claim);
+
+			ensure!(owner == sender, Error::<T>::NotClaimOwner);
+
+			let dest = T::Lookup::lookup(dest)?;
+
+			Proofs::<T>::insert(&claim, (&dest, frame_system::Module::<T>::block_number()));
+
+			Self::deposit_event(RawEvent::ClaimTransferred(dest, claim));
 
 			Ok(())
 		}
