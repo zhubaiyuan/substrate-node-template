@@ -36,6 +36,7 @@ decl_storage! {
 decl_event!(
 	pub enum Event<T> where AccountId = <T as frame_system::Trait>::AccountId {
 		ClaimCreated(AccountId, Vec<u8>),
+		ClaimRevoked(AccountId, Vec<u8>),
 	}
 );
 
@@ -43,6 +44,8 @@ decl_event!(
 decl_error! {
 	pub enum Error for Module<T: Trait> {
 		ProofAlreadyExist,
+		ClaimNotExist,
+		NotClaimOwner,
 	}
 }
 
@@ -66,6 +69,23 @@ decl_module! {
 			Proofs::<T>::insert(&claim, (sender.clone(), frame_system::Module::<T>::block_number()));
 
 			Self::deposit_event(RawEvent::ClaimCreated(sender, claim));
+
+			Ok(())
+		}
+
+		#[weight = 0]
+		pub fn revoke_claim(origin, claim: Vec<u8>) -> DispatchResult {
+			let sender = ensure_signed(origin)?;
+
+			ensure!(Proofs::<T>::contains_key(&claim), Error::<T>::ClaimNotExist);
+
+			let (owner, _) = Proofs::<T>::get(&claim);
+
+			ensure!(owner == sender, Error::<T>::NotClaimOwner);
+
+			Proofs::<T>::remove(&claim);
+
+			Self::deposit_event(RawEvent::ClaimRevoked(sender, claim));
 
 			Ok(())
 		}
